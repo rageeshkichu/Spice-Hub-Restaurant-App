@@ -102,13 +102,17 @@ def _get_int_env(name, default):
 if DB_ENGINE == 'postgresql':
     # Railway exposes PG* variables; prefer DB_* when explicitly set.
     db_port = _get_int_env('DB_PORT', _get_int_env('PGPORT', 5432))
+    db_name = _get_env('DB_NAME', _get_env('PGDATABASE', 'spicehub_db'))
+    db_user = _get_env('DB_USER', _get_env('PGUSER', 'postgres'))
+    db_password = _get_env('DB_PASSWORD', _get_env('PGPASSWORD', 'postgres'))
+    db_host = _get_env('DB_HOST', _get_env('PGHOST', 'localhost'))
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME', default=_get_env('PGDATABASE', 'spicehub_db')),
-            'USER': config('DB_USER', default=_get_env('PGUSER', 'postgres')),
-            'PASSWORD': config('DB_PASSWORD', default=_get_env('PGPASSWORD', 'postgres')),
-            'HOST': config('DB_HOST', default=_get_env('PGHOST', 'localhost')),
+            'NAME': db_name,
+            'USER': db_user,
+            'PASSWORD': db_password,
+            'HOST': db_host,
             'PORT': db_port,
         }
     }
