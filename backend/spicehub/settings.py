@@ -82,14 +82,15 @@ WSGI_APPLICATION = 'spicehub.wsgi.application'
 DB_ENGINE = config('DATABASE_ENGINE', default='sqlite3')
 
 if DB_ENGINE == 'postgresql':
+    # Railway exposes PG* variables; prefer DB_* when explicitly set.
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME', default='spicehub_db'),
-            'USER': config('DB_USER', default='postgres'),
-            'PASSWORD': config('DB_PASSWORD', default='postgres'),
-            'HOST': config('DB_HOST', default='localhost'),
-            'PORT': config('DB_PORT', default='5432'),
+            'NAME': config('DB_NAME', default=config('PGDATABASE', default='spicehub_db')),
+            'USER': config('DB_USER', default=config('PGUSER', default='postgres')),
+            'PASSWORD': config('DB_PASSWORD', default=config('PGPASSWORD', default='postgres')),
+            'HOST': config('DB_HOST', default=config('PGHOST', default='localhost')),
+            'PORT': config('DB_PORT', default=config('PGPORT', default='5432'), cast=int),
         }
     }
 else:
