@@ -2,6 +2,7 @@
 Django settings for spicehub project.
 """
 
+import os
 from pathlib import Path
 from decouple import config
 
@@ -81,16 +82,34 @@ WSGI_APPLICATION = 'spicehub.wsgi.application'
 # Use SQLite for local development, PostgreSQL for production
 DB_ENGINE = config('DATABASE_ENGINE', default='sqlite3')
 
+
+def _get_env(name, default=None):
+    value = os.getenv(name)
+    if not value or value.startswith('${'):
+        return default
+    return value
+
+
+def _get_int_env(name, default):
+    value = _get_env(name)
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except ValueError:
+        return default
+
 if DB_ENGINE == 'postgresql':
     # Railway exposes PG* variables; prefer DB_* when explicitly set.
+    db_port = _get_int_env('DB_PORT', _get_int_env('PGPORT', 5432))
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME', default=config('PGDATABASE', default='spicehub_db')),
-            'USER': config('DB_USER', default=config('PGUSER', default='postgres')),
-            'PASSWORD': config('DB_PASSWORD', default=config('PGPASSWORD', default='postgres')),
-            'HOST': config('DB_HOST', default=config('PGHOST', default='localhost')),
-            'PORT': config('DB_PORT', default=config('PGPORT', default='5432'), cast=int),
+            'NAME': config('DB_NAME', default=_get_env('PGDATABASE', 'spicehub_db')),
+            'USER': config('DB_USER', default=_get_env('PGUSER', 'postgres')),
+            'PASSWORD': config('DB_PASSWORD', default=_get_env('PGPASSWORD', 'postgres')),
+            'HOST': config('DB_HOST', default=_get_env('PGHOST', 'localhost')),
+            'PORT': db_port,
         }
     }
 else:
