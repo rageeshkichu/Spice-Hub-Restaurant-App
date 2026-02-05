@@ -20,6 +20,9 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy project
 COPY . /app/
 
+# Make start script executable
+RUN chmod +x /app/start.sh || true
+
 # Collect static files
 RUN python manage.py collectstatic --noinput || true
 
@@ -28,5 +31,5 @@ RUN python manage.py collectstatic --noinput || true
 
 EXPOSE 8000
 
-# Run gunicorn
-CMD ["gunicorn", "spicehub.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Use start script that supports PORT environment variable
+CMD ["/bin/bash", "-c", "python manage.py migrate --noinput && gunicorn spicehub.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 120"]
