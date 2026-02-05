@@ -32,4 +32,5 @@ RUN python manage.py collectstatic --noinput || true
 EXPOSE 8000
 
 # Use start script that supports PORT environment variable
-CMD ["/bin/bash", "-c", "python manage.py migrate --noinput && gunicorn spicehub.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 120"]
+# Note: Skip migrations on startup; run separately or in Railway pre-deploy hook
+CMD ["/bin/bash", "-c", "gunicorn spicehub.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 120"]
