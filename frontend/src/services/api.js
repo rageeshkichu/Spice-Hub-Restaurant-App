@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// API URL is configured via VITE_API_URL environment variable
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 function getCookie(name) {
