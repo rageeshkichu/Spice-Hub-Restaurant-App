@@ -1,35 +1,34 @@
+# Use official Python image
 FROM python:3.11-slim
 
-# Set environment variables
+# Prevent Python from writing pyc files & enable stdout logs
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Set work directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies for psycopg2 & Pillow
 RUN apt-get update && apt-get install -y \
-    postgresql-client \
     gcc \
+    libpq-dev \
+    build-essential \
+    libjpeg-dev \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY backend/requirements.txt /app/
+COPY backend/requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy project
-COPY backend/ /app/
-
-# Make start script executable
-RUN chmod +x /app/start.sh || true
+# Copy project files
+COPY backend .
 
 # Collect static files
-RUN python manage.py collectstatic --noinput || true
+RUN python manage.py collectstatic --noinput
 
-# Run migrations (optional, can be done separately)
-# RUN python manage.py migrate
-
+# Expose Django/Gunicorn port
 EXPOSE 8000
 
-# Use start script that runs migrations, creates superuser, then starts server
-CMD ["/bin/bash", "-c", "gunicorn spicehub.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 120"]
+# Start Gunicorn
+CMD ["gunicorn", "spicehub.wsgi:application", "--bind", "0.0.0.0:8000"]
