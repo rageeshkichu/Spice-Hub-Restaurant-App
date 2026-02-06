@@ -56,8 +56,6 @@ export const getCSRFToken = async () => {
   }
 };
 
-// Initialize CSRF token on app load
-getCSRFToken();
 
 // Categories
 export const getCategories = () => api.get('/categories/');

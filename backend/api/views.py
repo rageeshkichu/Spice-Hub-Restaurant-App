@@ -1,5 +1,6 @@
 
 # ========== ADMIN-ONLY CRUD ENDPOINTS =============
+from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser, BasePermission
 from rest_framework.response import Response
@@ -394,26 +395,11 @@ from rest_framework.decorators import api_view, permission_classes
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-@api_view(['GET', 'OPTIONS'])
+@api_view(['GET'])
 @permission_classes([AllowAny])
 @ensure_csrf_cookie
 def csrf_token(request):
-    """Get CSRF token for form submissions, with CORS headers and OPTIONS support"""
-    if request.method == 'OPTIONS':
-        response = Response()
-    else:
-        token = get_token(request)
-        response = Response({'csrfToken': token})
-    # Set CORS headers explicitly for preflight and GET
-    origin = request.headers.get('Origin')
-    allowed_origins = getattr(settings, 'CORS_ALLOWED_ORIGINS', [])
-    if origin in allowed_origins:
-        response['Access-Control-Allow-Origin'] = origin
-        response['Access-Control-Allow-Credentials'] = 'true'
-        response['Vary'] = 'Origin'
-        response['Access-Control-Allow-Headers'] = 'Content-Type, X-CSRFToken'
-        response['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
-    return response
+    return Response({"csrfToken": get_token(request)})
 
 
 # ============================================================================

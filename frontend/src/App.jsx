@@ -15,8 +15,15 @@ import Register from './pages/Register'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import AdminDashboard from './pages/AdminDashboard'
+import { useEffect } from 'react'
+import { getCSRFToken } from './services/api'
 
 function App() {
+
+  useEffect(() => {
+    getCSRFToken();
+}, []);
+
   return (
     <Router>
       <div className="app">
